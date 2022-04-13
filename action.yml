@@ -1,6 +1,6 @@
-name: 'markdown-link-check'
+name: 'md-check-links'
 description: 'Check if all links are valid in markdown files.'
-author: 'Gaurav Nelson'
+author: 'Maintainers'
 branding:
   icon: 'link'  
   color: 'green'
