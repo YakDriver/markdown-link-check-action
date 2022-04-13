@@ -8,6 +8,8 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 
+UV_THREADPOOL_SIZE=128
+
 npm i -g markdown-link-check@3.9.3
 
 declare -a FIND_CALL
