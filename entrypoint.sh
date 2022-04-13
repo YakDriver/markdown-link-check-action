@@ -42,15 +42,15 @@ fi
 FOLDERS=""
 FILES=""
 
-echo -e "${BLUE}USE_QUIET_MODE: $1${NC}"
-echo -e "${BLUE}USE_VERBOSE_MODE: $2${NC}"
-echo -e "${BLUE}FOLDER_PATH: $4${NC}"
-echo -e "${BLUE}MAX_DEPTH: $5${NC}"
-echo -e "${BLUE}CHECK_MODIFIED_FILES: $6${NC}"
-echo -e "${BLUE}BASE_BRANCH: $7${NC}"
-echo -e "${BLUE}FILE_PREFIX: $8${NC}"
-echo -e "${BLUE}FILE_EXTENSION: $9${NC}"
-echo -e "${BLUE}FILE_PATH: $10${NC}"
+echo -e "${BLUE}USE_QUIET_MODE: ${USE_QUIET_MODE}${NC}"
+echo -e "${BLUE}USE_VERBOSE_MODE: ${USE_VERBOSE_MODE}${NC}"
+echo -e "${BLUE}FOLDER_PATH: ${FOLDER_PATH}${NC}"
+echo -e "${BLUE}MAX_DEPTH: ${MAX_DEPTH}${NC}"
+echo -e "${BLUE}CHECK_MODIFIED_FILES: ${CHECK_MODIFIED_FILES}${NC}"
+echo -e "${BLUE}BASE_BRANCH: ${BASE_BRANCH}${NC}"
+echo -e "${BLUE}FILE_PREFIX: ${FILE_PREFIX}${NC}"
+echo -e "${BLUE}FILE_EXTENSION: ${FILE_EXTENSION}${NC}"
+echo -e "${BLUE}FILE_PATH: ${FILE_PATH}${NC}"
 
 handle_dirs () {
 
@@ -149,19 +149,19 @@ check_additional_files () {
 
 git config --global --add safe.directory /github/workspace
 
-if [ -z "$8" ]; then
+if [ -z "$FILE_EXTENSION" ]; then
    FOLDERS="."
 else
    handle_dirs
 fi
 
-if [ -n "$9" ]; then
+if [ -n "$FILE_PATH" ]; then
    handle_files
 fi
 
 if [ "$CHECK_MODIFIED_FILES" = "yes" ]; then
 
-   echo -e "${BLUE}BASE_BRANCH: $7${NC}"
+   echo -e "${BLUE}BASE_BRANCH: ${BASE_BRANCH}${NC}"
 
    git fetch origin "${BASE_BRANCH}" --depth=1 > /dev/null
    MASTER_HASH=$(git rev-parse origin/"${BASE_BRANCH}")
