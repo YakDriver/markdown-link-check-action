@@ -29,7 +29,7 @@ if [ -z "$9" ]; then
 else
    FILE_EXTENSION="$9"
 fi
-FILE_PATH="$10"
+FILE_PATH="${10}"
 
 if [ -f "$CONFIG_FILE" ]; then
    echo -e "${BLUE}Using markdown-link-check configuration file: ${YELLOW}$CONFIG_FILE${NC}"
