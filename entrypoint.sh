@@ -10,7 +10,7 @@ RED='\033[0;31m'
 
 UV_THREADPOOL_SIZE=128
 
-npm i -g markdown-link-check@3.9.3
+npm i -g markdown-link-check@3.10.0
 
 declare -a FIND_CALL
 declare -a COMMAND_DIRS COMMAND_FILES
@@ -23,12 +23,13 @@ FOLDER_PATH="$4"
 MAX_DEPTH="$5"
 CHECK_MODIFIED_FILES="$6"
 BASE_BRANCH="$7"
-if [ -z "$8" ]; then
+FILE_PREFIX="$8"
+if [ -z "$9" ]; then
    FILE_EXTENSION=".md"
 else
-   FILE_EXTENSION="$8"
+   FILE_EXTENSION="$9"
 fi
-FILE_PATH="$9"
+FILE_PATH="$10"
 
 if [ -f "$CONFIG_FILE" ]; then
    echo -e "${BLUE}Using markdown-link-check configuration file: ${YELLOW}$CONFIG_FILE${NC}"
@@ -46,8 +47,10 @@ echo -e "${BLUE}USE_VERBOSE_MODE: $2${NC}"
 echo -e "${BLUE}FOLDER_PATH: $4${NC}"
 echo -e "${BLUE}MAX_DEPTH: $5${NC}"
 echo -e "${BLUE}CHECK_MODIFIED_FILES: $6${NC}"
-echo -e "${BLUE}FILE_EXTENSION: $8${NC}"
-echo -e "${BLUE}FILE_PATH: $9${NC}"
+echo -e "${BLUE}BASE_BRANCH: $7${NC}"
+echo -e "${BLUE}FILE_PREFIX: $8${NC}"
+echo -e "${BLUE}FILE_EXTENSION: $9${NC}"
+echo -e "${BLUE}FILE_PATH: $10${NC}"
 
 handle_dirs () {
 
@@ -185,10 +188,10 @@ if [ "$CHECK_MODIFIED_FILES" = "yes" ]; then
 
 else
 
-   if [ "$5" -ne -1 ]; then
-      FIND_CALL=('find' ${FOLDERS} '-name' '*'"${FILE_EXTENSION}" '-not' '-path' './node_modules/*' '-maxdepth' "${MAX_DEPTH}" '-exec' 'markdown-link-check' '{}')
+   if [ "${MAX_DEPTH}" -ne -1 ]; then
+      FIND_CALL=('find' ${FOLDERS} '-name' "${FILE_PREFIX}"'*'"${FILE_EXTENSION}" '-not' '-path' './node_modules/*' '-maxdepth' "${MAX_DEPTH}" '-exec' 'markdown-link-check' '{}')
    else
-      FIND_CALL=('find' ${FOLDERS} '-name' '*'"${FILE_EXTENSION}" '-not' '-path' './node_modules/*' '-exec' 'markdown-link-check' '{}')
+      FIND_CALL=('find' ${FOLDERS} '-name' "${FILE_PREFIX}"'*'"${FILE_EXTENSION}" '-not' '-path' './node_modules/*' '-exec' 'markdown-link-check' '{}')
    fi
 
    add_options
