@@ -144,6 +144,8 @@ check_additional_files () {
 
 }
 
+git config --global --add safe.directory /github/workspace
+
 if [ -z "$8" ]; then
    FOLDERS="."
 else
