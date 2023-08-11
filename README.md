@@ -9,9 +9,9 @@ This GitHub action checks all Markdown files in your repository for broken links
 
    ```yml
    name: Check Markdown links
-   
+
    on: push
-   
+
    jobs:
      markdown-link-check:
        runs-on: ubuntu-latest
@@ -28,15 +28,11 @@ Markdown link check.
 1. [netdata](https://github.com/netdata/netdata/blob/master/.github/workflows/docs.yml) ![](https://img.shields.io/github/stars/netdata/netdata?style=social)
 1. [GoogleChrome/lighthouse (Weekly cron job)](https://github.com/GoogleChrome/lighthouse/blob/master/.github/workflows/cron-weekly.yml)
    ![](https://img.shields.io/github/stars/GoogleChrome/lighthouse?style=social)
-1. [hashicorp/packer](https://github.com/hashicorp/packer/blob/master/.github/workflows/linkchecker.yml)
-   ![](https://img.shields.io/github/stars/hashicorp/packer?style=social)
-1. [prometheus-operator](https://github.com/prometheus-operator/prometheus-operator/blob/master/.github/workflows/checks.yaml)
-   ![](https://img.shields.io/github/stars/prometheus-operator/prometheus-operator?style=social)
 1. [tendermint/tendermint](https://github.com/tendermint/tendermint/blob/master/.github/workflows/linkchecker.yml)
    ![](https://img.shields.io/github/stars/tendermint/tendermint?style=social)
 1. [pyroscope-io/pyroscope](https://github.com/pyroscope-io/pyroscope/blob/main/.github/workflows/lint-markdown.yml)
    ![](https://img.shields.io/github/stars/pyroscope-io/pyroscope?style=social)
-   
+
 If you are using this on production, consider [buying me a coffee](https://ko-fi.com/gauravnelson) ☕.
 
 ## Configuration
@@ -54,7 +50,7 @@ You customize the action by using the following variables:
 |:----------|:--------------|:-----------|
 |`use-quiet-mode`| Specify `yes` to only show errors in output.| `no`|
 |`use-verbose-mode`|Specify `yes` to show detailed HTTP status for checked links. |`no` |
-|`config-file`|Specify a [custom configuration file](https://github.com/tcort/markdown-link-check#config-file-format) for markdown-link-check. You can use it to remove false-positives by specifying replacement patterns and ignore patterns.|`mlc_config.json`|
+|`config-file`|Specify a [custom configuration file](https://github.com/tcort/markdown-link-check#config-file-format) for markdown-link-check. You can use it to remove false-positives by specifying replacement patterns and ignore patterns. The filename is interpreted relative to the repository root.|`mlc_config.json`|
 |`folder-path` |By default the `github-action-markdown-link-check` action checks for all markdown files in your repository. Use this option to limit checks to only specific folders. Use comma separated values for checking multiple folders. |`.` |
 |`max-depth` |Specify how many levels deep you want to check in the directory structure. The default value is `-1` which means check all levels.|`-1` |
 |`check-modified-files-only` |Use this variable to only check modified markdown files instead of checking all markdown files. The action uses `git` to find modified markdown files. Only use this variable when you run the action to check pull requests.|`no`|
@@ -85,7 +81,7 @@ jobs:
 
 ### Scheduled runs
 In addition to checking links on every push, or pull requests, its also a good
-hygine to check for broken links regularly as well. See
+hygiene to check for broken links regularly as well. See
 [Workflow syntax for GitHub Actions - on.schedule](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#onschedule)
 for more details.
 
@@ -94,7 +90,7 @@ for more details.
 ```yml
 name: Check Markdown links
 
-on: 
+on:
   push:
     branches:
     - master
@@ -125,7 +121,7 @@ checking for certain links in a markdown document.
      ```md
      <!-- markdown-link-check-disable -->
      ## Section
-     
+
      Disbale link checking in this section. Ignore this [Bad Link](https://exampleexample.cox)
      <!-- markdown-link-check-enable -->
      ```
@@ -136,10 +132,10 @@ checking for certain links in a markdown document.
 ### Check only modified files in a pull request
 
 Use the following workflow to only check links in modified markdown files in a
-pull request. 
+pull request.
 
 When
-you use this variable, the action finds modififed files between two commits:
+you use this variable, the action finds modified files between two commits:
 - latest commit in you PR
 - latest commit in the `master` branch. If you are suing a different branch to
   merge PRs, specify the branch using `base-branch`.
@@ -191,8 +187,55 @@ Or mark 429 status code as alive:
 }
 ```
 
+### GitHub links failure fix
+Use the following `httpHeaders` in your custom configuration file to fix GitHub links failure.
+
+```json
+{
+  "httpHeaders": [
+    {
+      "urls": ["https://github.com/", "https://guides.github.com/", "https://help.github.com/", "https://docs.github.com/"],
+      "headers": {
+        "Accept-Encoding": "zstd, br, gzip, deflate"
+      }
+    }
+  ]
+}
+```
+
+## Example Usage
+
+Consider a workflow file that checks for the status of hyperlinks on push to the master branch,
+
+``` yml
+name: Check .md links
+
+on:
+  push: [master]
+
+jobs:
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    # check out the latest version of the code
+    steps:
+    - uses: actions/checkout@v3
+
+    # Checks the status of hyperlinks in .md files in verbose mode
+    - name: Check links
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-verbose-mode: 'yes'
+```
+A file `test.md` exists, containing
+
+![image](https://user-images.githubusercontent.com/53875297/159135478-87194037-f3d6-4ca9-9da8-f01dac482fbc.png)
+
+On running the workflow described above, the output shown below is obtained
+
+![image](https://user-images.githubusercontent.com/53875297/159135426-9f439d39-8bb3-40f0-9255-9efe2b493c1a.png)
+
 ## Versioning
-GitHub Action - Markdown link check follows the [GitHub recommended versioning strategy](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md). 
+GitHub Action - Markdown link check follows the [GitHub recommended versioning strategy](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md).
 
 1. To use a specific released version of the action ([Releases](https://github.com/gaurav-nelson/github-action-markdown-link-check/releases)):
    ```yml
@@ -206,10 +249,12 @@ GitHub Action - Markdown link check follows the [GitHub recommended versioning s
    ```yml
    - uses: gaurav-nelson/github-action-markdown-link-check@44a942b2f7ed0dc101d556f281e906fb79f1f478
    ```
-   
+
 <hr>
 <p align="center">
  <a name="coffee" href="https://ko-fi.com/gauravnelson">
   <img src="https://i.imgur.com/1Q1YoHz.gif" alt="Buy me a coffee.">
  </a>
 </p>
+
+See https://pubsadasdsadasdasdasdas.aasasdas.odasdarg/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
