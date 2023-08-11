@@ -37,11 +37,12 @@ If you are using this on production, consider [buying me a coffee](https://ko-fi
 
 ## Configuration
 
-- [Custom variables](#custom-variables)
 - [Scheduled runs](#scheduled-runs)
 - [Disable check for some links](#disable-check-for-some-links)
 - [Check only modified files in a pull request](#check-only-modified-files-in-a-pull-request)
+- [Check multiple directories and files](#check-multiple-directories-and-files)
 - [Status code 429: Too many requests](#too-many-requests)
+- [GitHub links failure fix](#github-links-failure-fix)
 
 ### Custom variables
 You customize the action by using the following variables:
@@ -226,6 +227,7 @@ jobs:
       with:
         use-verbose-mode: 'yes'
 ```
+
 A file `test.md` exists, containing
 
 ![image](https://user-images.githubusercontent.com/53875297/159135478-87194037-f3d6-4ca9-9da8-f01dac482fbc.png)
