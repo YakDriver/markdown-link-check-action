@@ -37,6 +37,7 @@ If you are using this on production, consider [buying me a coffee](https://ko-fi
 
 ## Configuration
 
+- [Custom variables](#custom-variables)
 - [Scheduled runs](#scheduled-runs)
 - [Disable check for some links](#disable-check-for-some-links)
 - [Check only modified files in a pull request](#check-only-modified-files-in-a-pull-request)
