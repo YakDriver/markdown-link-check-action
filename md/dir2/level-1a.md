@@ -6,7 +6,7 @@ www.google.com
 [This is a broken link](https://www.exampleexample.cox)
 
 [This is another broken link](http://ignored-domain.com) but its ignored using a
-configuration file. 
+configuration file.
 
 ### Alpha
 

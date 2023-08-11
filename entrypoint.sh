@@ -10,7 +10,10 @@ RED='\033[0;31m'
 
 UV_THREADPOOL_SIZE=128
 
-npm i -g markdown-link-check@3.10.0
+npm i -g markdown-link-check@3.11.2
+echo "::group::Debug information"
+npm -g list --depth=1
+echo "::endgroup::"
 
 declare -a FIND_CALL
 declare -a COMMAND_DIRS COMMAND_FILES
@@ -130,9 +133,9 @@ check_additional_files () {
 
    if [ -n "$FILES" ]; then
       if [ "$MAX_DEPTH" -ne -1 ]; then
-         FIND_CALL=('find' '.' '-type' 'f' '(' ${FILES} ')' '-not' '-path' './node_modules/*' '-maxdepth' "${MAX_DEPTH}" '-exec' 'markdown-link-check' '{}')
+         FIND_CALL=('find' ${FOLDERS} '-type' 'f' '(' ${FILES} ')' '-not' '-path' './node_modules/*' '-maxdepth' "${MAX_DEPTH}" '-exec' 'markdown-link-check' '{}')
       else
-         FIND_CALL=('find' '.' '-type' 'f' '(' ${FILES} ')' '-not' '-path' './node_modules/*' '-exec' 'markdown-link-check' '{}')
+         FIND_CALL=('find' ${FOLDERS} '-type' 'f' '(' ${FILES} ')' '-not' '-path' './node_modules/*' '-exec' 'markdown-link-check' '{}')
       fi
 
       add_options
@@ -163,14 +166,21 @@ if [ "$CHECK_MODIFIED_FILES" = "yes" ]; then
 
    echo -e "${BLUE}BASE_BRANCH: ${BASE_BRANCH}${NC}"
 
+   git config --global --add safe.directory '*'
+
    git fetch origin "${BASE_BRANCH}" --depth=1 > /dev/null
    MASTER_HASH=$(git rev-parse origin/"${BASE_BRANCH}")
+
+   if [ -z "$FOLDERS" ]; then
+      FOLDERS="."
+   fi
 
    FIND_CALL=('markdown-link-check')
 
    add_options
 
-   mapfile -t FILE_ARRAY < <( git diff --name-only --diff-filter=AM "$MASTER_HASH" )
+   FOLDER_ARRAY=(${FOLDER_PATH//,/ })
+   mapfile -t FILE_ARRAY < <( git diff --name-only --diff-filter=AM "$MASTER_HASH" -- "${FOLDER_ARRAY[@]}")
 
    for i in "${FILE_ARRAY[@]}"
       do
@@ -183,7 +193,7 @@ if [ "$CHECK_MODIFIED_FILES" = "yes" ]; then
       done
 
    check_additional_files
-   
+
    check_errors
 
 else
