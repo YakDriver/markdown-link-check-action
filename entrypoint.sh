@@ -11,16 +11,16 @@ declare -a FIND_CALL
 declare -a COMMAND_DIRS COMMAND_FILES
 declare -a COMMAND_FILES
 
-QUIET=""
-VERBOSE=""
-CONFIG=""
-DIRECTORY=""
-DEPTH=""
-MODIFIED=""
-BRANCH=""
+QUIET=no
+VERBOSE=no
+CONFIG=mlc_config.json
+DIRECTORY=.
+DEPTH=-1
+MODIFIED=no
+BRANCH=main
 PREFIX=""
 FILE=""
-EXTENSION=""
+EXTENSION=".md"
 
 # Check if the first argument starts with '--'
 if [[ $1 == --* ]]; then
