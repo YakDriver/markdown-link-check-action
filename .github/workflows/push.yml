@@ -4,7 +4,7 @@ jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@main
     - name: markdown-link-check
       uses: ./
       with:
@@ -12,7 +12,7 @@ jobs:
   markdown-link-check-folders:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@main
     - name: markdown-link-check
       uses: ./
       with:
