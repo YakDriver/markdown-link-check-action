@@ -62,6 +62,7 @@ You customize the action by using the following variables:
 |`branch`|Use this variable to specify the branch to compare when finding modified markdown files. |`main`|
 |`extension`|By default the `github-action-markdown-link-check` action checks files in your repository with the `.md` extension. Use this option to specify a different file extension such as `.markdown` or `.mdx`.|`.md`|
 |`file` | Specify additional files (with complete path and extension) you want to check. Use comma separated values for checking multiple files. See [Check multiple directories and files](#check-multiple-directories-and-files) section for usage.| - |
+|`prefix` | Prefix of files to check. | - |
 
 #### Sample workflow with variables
 

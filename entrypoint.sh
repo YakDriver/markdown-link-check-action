@@ -11,16 +11,16 @@ declare -a FIND_CALL
 declare -a COMMAND_DIRS COMMAND_FILES
 declare -a COMMAND_FILES
 
-QUIET=""
-VERBOSE=""
-CONFIG=""
-DIRECTORY=""
-DEPTH=""
-MODIFIED=""
-BRANCH=""
+QUIET=no
+VERBOSE=no
+CONFIG=mlc_config.json
+DIRECTORY=.
+DEPTH=-1
+MODIFIED=no
+BRANCH=main
 PREFIX=""
 FILE=""
-EXTENSION=""
+EXTENSION=".md"
 
 # Check if the first argument starts with '--'
 if [[ $1 == --* ]]; then
@@ -164,7 +164,6 @@ handle_files () {
 }
 
 check_errors () {
-
    if [ -e error.txt ] ; then
       if grep -q "ERROR:" error.txt; then
          echo -e "=========================> MARKDOWN LINK CHECK <========================="
@@ -182,11 +181,9 @@ check_errors () {
    else
       echo -e "All good!"
    fi
-
 }
 
 add_options () {
-
    if [ -f "$CONFIG" ]; then
       FIND_CALL+=('--config' "${CONFIG}")
    fi
@@ -198,11 +195,9 @@ add_options () {
    if [ "$VERBOSE" = "yes" ]; then
       FIND_CALL+=('-v')
    fi
-
 }
 
 check_additional_files () {
-
    if [ -n "$FILES" ]; then
       if [ "$DEPTH" -ne -1 ]; then
          FIND_CALL=('find' ${FOLDERS} '-type' 'f' '(' ${FILES} ')' '-not' '-path' './node_modules/*' '-maxdepth' "${DEPTH}" '-exec' 'markdown-link-check' '{}')
@@ -219,7 +214,6 @@ check_additional_files () {
       set +x
 
    fi
-
 }
 
 git config --global --add safe.directory /github/workspace
