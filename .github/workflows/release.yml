@@ -31,10 +31,3 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PUBLISH_TOKEN }}
           tags: latest,stable,${{ env.SEMVER_TAGS }}
-      - name: "Docker: Set Image Visibility to Public"
-        run: |
-          curl -X PATCH \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: token ${{ secrets.PUBLISH_TOKEN }}" \
-              https://api.github.com/user/packages/container/${{ env.IMAGE_NAME }}/visibility \
-              -d '{"visibility":"public"}'
