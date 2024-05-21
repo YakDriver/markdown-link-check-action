@@ -1,47 +1,47 @@
 name: 'md-check-links'
-description: 'Check if all links are valid in markdown files.'
+description: 'Check if links are valid in markdown files.'
 author: 'Maintainers'
 branding:
   icon: 'link'  
   color: 'green'
 inputs:
-  use-quiet-mode:
+  quiet:
     description: 'Use yes to enable markdown-link-check quiet mode which only lists errors.'
     required: true
     default: 'no'
-  use-verbose-mode:
+  verbose:
     description: 'Use yes to enable markdown-link-check verbose mode which lists additional details.'
     required: true
     default: 'no'
-  config-file:
+  config:
     description: 'Specify path to a markdown-link-check JSON configuration file.'
     required: true
     default: 'mlc_config.json'
-  folder-path:
+  directory:
     description: 'Specify path to a custom folder where your markdown files are located.'
     required: true
     default: '.'
-  max-depth:
-    description: 'Specify a max-depth of directories you want to search for markdown files.'
+  depth:
+    description: 'Specify a depth of directories you want to search for markdown files.'
     required: true
     default: '-1'
-  check-modified-files-only:
+  modified:
     description: 'Use yes to only check for modified markdown files instead of checking all markdown files.'
     required: true
     default: 'no'
-  base-branch:
+  branch:
     description: 'Use this to specify the base branch against which the action finds the modified files.'
     required: true
     default: 'main'
-  file-prefix:
+  prefix:
     description: 'Prefix of files to check.'
     required: true
     default: ''
-  file-extension:
+  extension:
     description: 'Use this to specify the file extension of Markdown files.'
     required: true
     default: '.md'
-  file-path:
+  file:
     description: 'Specify additional files you want to check'
     required: true
     default: ''
@@ -50,13 +50,13 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.use-quiet-mode }}
-    - ${{ inputs.use-verbose-mode }}
-    - ${{ inputs.config-file }}
-    - ${{ inputs.folder-path }}
-    - ${{ inputs.max-depth }}
-    - ${{ inputs.check-modified-files-only }}
-    - ${{ inputs.base-branch }}
-    - ${{ inputs.file-prefix }}
-    - ${{ inputs.file-extension }}
-    - ${{ inputs.file-path }}
+    - ${{ inputs.quiet }}
+    - ${{ inputs.verbose }}
+    - ${{ inputs.config }}
+    - ${{ inputs.directory }}
+    - ${{ inputs.depth }}
+    - ${{ inputs.modified }}
+    - ${{ inputs.branch }}
+    - ${{ inputs.prefix }}
+    - ${{ inputs.extension }}
+    - ${{ inputs.file }}
