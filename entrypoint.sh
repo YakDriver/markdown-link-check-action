@@ -2,12 +2,6 @@
 
 set -eu
 
-NC='\033[0m' # No Color
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-RED='\033[0;31m'
-
 UV_THREADPOOL_SIZE=128
 
 npm -g list --depth=1
@@ -17,50 +11,130 @@ declare -a FIND_CALL
 declare -a COMMAND_DIRS COMMAND_FILES
 declare -a COMMAND_FILES
 
-USE_QUIET_MODE="$1"
-USE_VERBOSE_MODE="$2"
-CONFIG_FILE="$3"
-FOLDER_PATH="$4"
-MAX_DEPTH="$5"
-CHECK_MODIFIED_FILES="$6"
-BASE_BRANCH="$7"
-FILE_PREFIX="$8"
-if [ -z "$9" ]; then
-   FILE_EXTENSION=".md"
-else
-   FILE_EXTENSION="$9"
-fi
-FILE_PATH="${10}"
+QUIET=""
+VERBOSE=""
+CONFIG=""
+DIRECTORY=""
+DEPTH=""
+MODIFIED=""
+BRANCH=""
+PREFIX=""
+FILE=""
+EXTENSION=""
 
-if [ -f "$CONFIG_FILE" ]; then
-   echo -e "${BLUE}Using markdown-link-check configuration file: ${YELLOW}$CONFIG_FILE${NC}"
+# Check if the first argument starts with '--'
+if [[ $1 == --* ]]; then
+   # Define the options
+   OPTIONS=q:v:c:d:t:m:b:p:f:e
+   LONGOPTS=quiet:,verbose:,config:,directory:,depth:,modified:,branch:,prefix:,file:,extension:
+
+   # Parse the options
+   PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
+   if [[ $? -ne 0 ]]; then
+      exit 2
+   fi
+   eval set -- "$PARSED"
+
+   # Process the options
+   while true; do
+      case "$1" in
+         -q|--quiet)
+            QUIET="$2"
+            shift 2
+            ;;
+         -v|--verbose)
+            VERBOSE="$2"
+            shift 2
+            ;;
+         -c|--config)
+            CONFIG="$2"
+            shift 2
+            ;;
+         -f|--directory)
+            DIRECTORY="$2"
+            shift 2
+            ;;
+         -t|--depth)
+            DEPTH="$2"
+            shift 2
+            ;;
+         -m|--modified)
+            MODIFIED="$2"
+            shift 2
+            ;;
+         -b|--branch)
+            BRANCH="$2"
+            shift 2
+            ;;
+         -p|--prefix)
+            PREFIX="$2"
+            shift 2
+            ;;
+         -f|--file)
+            FILE="$2"
+            shift 2
+            ;;
+         -e|--extension)
+            EXTENSION="$2"
+            shift 2
+            ;;                        
+         --)
+            shift
+            break
+            ;;
+         *)
+            echo "Unrecognized option: $1"
+            exit 3
+            ;;
+      esac
+   done
 else
-   echo -e "${BLUE}Cannot find ${YELLOW}$CONFIG_FILE${NC}"
-   echo -e "${YELLOW}NOTE: See https://github.com/tcort/markdown-link-check#config-file-format to know more about"
-   echo -e "customizing markdown-link-check by using a configuration file.${NC}"
+   QUIET="$1"
+   VERBOSE="$2"
+   CONFIG="$3"
+   DIRECTORY="$4"
+   DEPTH="$5"
+   MODIFIED="$6"
+   BRANCH="$7"
+   PREFIX="$8"
+
+   if [ -z "$9" ]; then
+      EXTENSION=".md"
+   else
+      EXTENSION="$9"
+   fi
+   FILE="${10}"
+fi
+
+if [ -f "$CONFIG" ]; then
+   echo -e "Using markdown-link-check configuration file: $CONFIG"
+else
+   echo -e "Cannot find $CONFIG"
+   echo -e "NOTE: See https://github.com/tcort/markdown-link-check#config-file-format to know more about"
+   echo -e "customizing markdown-link-check by using a configuration file."
 fi
 
 FOLDERS=""
 FILES=""
 
-echo -e "${BLUE}USE_QUIET_MODE: ${USE_QUIET_MODE}${NC}"
-echo -e "${BLUE}USE_VERBOSE_MODE: ${USE_VERBOSE_MODE}${NC}"
-echo -e "${BLUE}FOLDER_PATH: ${FOLDER_PATH}${NC}"
-echo -e "${BLUE}MAX_DEPTH: ${MAX_DEPTH}${NC}"
-echo -e "${BLUE}CHECK_MODIFIED_FILES: ${CHECK_MODIFIED_FILES}${NC}"
-echo -e "${BLUE}BASE_BRANCH: ${BASE_BRANCH}${NC}"
-echo -e "${BLUE}FILE_PREFIX: ${FILE_PREFIX}${NC}"
-echo -e "${BLUE}FILE_EXTENSION: ${FILE_EXTENSION}${NC}"
-echo -e "${BLUE}FILE_PATH: ${FILE_PATH}${NC}"
+echo -e "QUIET: ${QUIET}"
+echo -e "VERBOSE: ${VERBOSE}"
+echo -e "DIRECTORY: ${DIRECTORY}"
+echo -e "DEPTH: ${DEPTH}"
+echo -e "MODIFIED: ${MODIFIED}"
+echo -e "BRANCH: ${BRANCH}"
+echo -e "PREFIX: ${PREFIX}"
+echo -e "EXTENSION: ${EXTENSION}"
+echo -e "FILE: ${FILE}"
 
 handle_dirs () {
 
-   IFS=', ' read -r -a DIRLIST <<< "$FOLDER_PATH"
+   IFS=', ' read -r -a DIRLIST <<< "$DIRECTORY"
 
    for index in "${!DIRLIST[@]}"
    do
       if [ ! -d "${DIRLIST[index]}" ]; then
-         echo -e "${RED}ERROR [✖] Can't find the directory: ${YELLOW}${DIRLIST[index]}${NC}"
+         echo -e "ERROR [✖] Can't find the directory: ${DIRLIST[index]}"
          exit 2
       fi
       COMMAND_DIRS+=("${DIRLIST[index]}")
@@ -71,12 +145,12 @@ handle_dirs () {
 
 handle_files () {
 
-   IFS=', ' read -r -a FILELIST <<< "$FILE_PATH"
+   IFS=', ' read -r -a FILELIST <<< "$FILE"
 
    for index in "${!FILELIST[@]}"
    do
       if [ ! -f "${FILELIST[index]}" ]; then
-         echo -e "${RED}ERROR [✖] Can't find the file: ${YELLOW}${FILELIST[index]}${NC}"
+         echo -e "ERROR [✖] Can't find the file: ${FILELIST[index]}"
          exit 2
       fi
       if [ "$index" == 0 ]; then
@@ -93,35 +167,35 @@ check_errors () {
 
    if [ -e error.txt ] ; then
       if grep -q "ERROR:" error.txt; then
-         echo -e "${YELLOW}=========================> MARKDOWN LINK CHECK <=========================${NC}"
+         echo -e "=========================> MARKDOWN LINK CHECK <========================="
          cat error.txt
          printf "\n"
-         echo -e "${YELLOW}=========================================================================${NC}"
+         echo -e "========================================================================="
          exit 113
       else
-         echo -e "${YELLOW}=========================> MARKDOWN LINK CHECK <=========================${NC}"
+         echo -e "=========================> MARKDOWN LINK CHECK <========================="
          printf "\n"
-         echo -e "${GREEN}[✔] All links are good!${NC}"
+         echo -e "[✔] All links are good!"
          printf "\n"
-         echo -e "${YELLOW}=========================================================================${NC}"
+         echo -e "========================================================================="
       fi
    else
-      echo -e "${GREEN}All good!${NC}"
+      echo -e "All good!"
    fi
 
 }
 
 add_options () {
 
-   if [ -f "$CONFIG_FILE" ]; then
-      FIND_CALL+=('--config' "${CONFIG_FILE}")
+   if [ -f "$CONFIG" ]; then
+      FIND_CALL+=('--config' "${CONFIG}")
    fi
 
-   if [ "$USE_QUIET_MODE" = "yes" ]; then
+   if [ "$QUIET" = "yes" ]; then
       FIND_CALL+=('-q')
    fi
 
-   if [ "$USE_VERBOSE_MODE" = "yes" ]; then
+   if [ "$VERBOSE" = "yes" ]; then
       FIND_CALL+=('-v')
    fi
 
@@ -130,8 +204,8 @@ add_options () {
 check_additional_files () {
 
    if [ -n "$FILES" ]; then
-      if [ "$MAX_DEPTH" -ne -1 ]; then
-         FIND_CALL=('find' ${FOLDERS} '-type' 'f' '(' ${FILES} ')' '-not' '-path' './node_modules/*' '-maxdepth' "${MAX_DEPTH}" '-exec' 'markdown-link-check' '{}')
+      if [ "$DEPTH" -ne -1 ]; then
+         FIND_CALL=('find' ${FOLDERS} '-type' 'f' '(' ${FILES} ')' '-not' '-path' './node_modules/*' '-maxdepth' "${DEPTH}" '-exec' 'markdown-link-check' '{}')
       else
          FIND_CALL=('find' ${FOLDERS} '-type' 'f' '(' ${FILES} ')' '-not' '-path' './node_modules/*' '-exec' 'markdown-link-check' '{}')
       fi
@@ -150,24 +224,24 @@ check_additional_files () {
 
 git config --global --add safe.directory /github/workspace
 
-if [ -z "$FILE_EXTENSION" ]; then
+if [ -z "$EXTENSION" ]; then
    FOLDERS="."
 else
    handle_dirs
 fi
 
-if [ -n "$FILE_PATH" ]; then
+if [ -n "$FILE" ]; then
    handle_files
 fi
 
-if [ "$CHECK_MODIFIED_FILES" = "yes" ]; then
+if [ "$MODIFIED" = "yes" ]; then
 
-   echo -e "${BLUE}BASE_BRANCH: ${BASE_BRANCH}${NC}"
+   echo -e "BRANCH: ${BRANCH}"
 
    git config --global --add safe.directory '*'
 
-   git fetch origin "${BASE_BRANCH}" --depth=1 > /dev/null
-   MASTER_HASH=$(git rev-parse origin/"${BASE_BRANCH}")
+   git fetch origin "${BRANCH}" --depth=1 > /dev/null
+   MASTER_HASH=$(git rev-parse origin/"${BRANCH}")
 
    if [ -z "$FOLDERS" ]; then
       FOLDERS="."
@@ -177,12 +251,12 @@ if [ "$CHECK_MODIFIED_FILES" = "yes" ]; then
 
    add_options
 
-   FOLDER_ARRAY=(${FOLDER_PATH//,/ })
+   FOLDER_ARRAY=(${DIRECTORY//,/ })
    mapfile -t FILE_ARRAY < <( git diff --name-only --diff-filter=AM "$MASTER_HASH" -- "${FOLDER_ARRAY[@]}")
 
    for i in "${FILE_ARRAY[@]}"
       do
-         if [ "${i##*.}" == "${FILE_EXTENSION#.}" ]; then
+         if [ "${i##*.}" == "${EXTENSION#.}" ]; then
             FIND_CALL+=("${i}")
             COMMAND="${FIND_CALL[*]}"
             $COMMAND &>> error.txt || true
@@ -196,10 +270,10 @@ if [ "$CHECK_MODIFIED_FILES" = "yes" ]; then
 
 else
 
-   if [ "${MAX_DEPTH}" -ne -1 ]; then
-      FIND_CALL=('find' ${FOLDERS} '-name' "${FILE_PREFIX}"'*'"${FILE_EXTENSION}" '-not' '-path' './node_modules/*' '-maxdepth' "${MAX_DEPTH}" '-exec' 'markdown-link-check' '{}')
+   if [ "${DEPTH}" -ne -1 ]; then
+      FIND_CALL=('find' ${FOLDERS} '-name' "${PREFIX}"'*'"${EXTENSION}" '-not' '-path' './node_modules/*' '-maxdepth' "${DEPTH}" '-exec' 'markdown-link-check' '{}')
    else
-      FIND_CALL=('find' ${FOLDERS} '-name' "${FILE_PREFIX}"'*'"${FILE_EXTENSION}" '-not' '-path' './node_modules/*' '-exec' 'markdown-link-check' '{}')
+      FIND_CALL=('find' ${FOLDERS} '-name' "${PREFIX}"'*'"${EXTENSION}" '-not' '-path' './node_modules/*' '-exec' 'markdown-link-check' '{}')
    fi
 
    add_options
