@@ -32,7 +32,7 @@ inputs:
   base-branch:
     description: 'Use this to specify the base branch against which the action finds the modified files.'
     required: true
-    default: 'master'
+    default: 'main'
   file-prefix:
     description: 'Prefix of files to check.'
     required: true

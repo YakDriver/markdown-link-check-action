@@ -10,8 +10,6 @@ RED='\033[0;31m'
 
 UV_THREADPOOL_SIZE=128
 
-npm i -g markdown-link-check@3.11.2
-echo "::group::Debug information"
 npm -g list --depth=1
 echo "::endgroup::"
 
