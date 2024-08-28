@@ -1,0 +1,10 @@
+{
+  "name": "md-check-links",
+  "version": "1.0.0",
+  "dependencies": {
+    "markdown-link-check": "^3.12.2"
+  },
+  "resolutions": {
+    "yarn": "1.22.22"
+  }
+}
